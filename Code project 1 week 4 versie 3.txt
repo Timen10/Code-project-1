@@ -1,0 +1,117 @@
+#include <Arduino.h>
+// put function declarations here:
+const int IrSensor1 = A11; // declaratie van alle componenten
+const int IrSensor2 = A12;
+const int IrSensor3 = A13;
+const int IrSensor4 = A14;
+const int IrSensor5 = A15;
+
+int motorsLeft = 3;           // motoraansturing linkerwielen
+int motorsRight = 11;         // motoraansturing rechterwielen
+int motorDirectionLeft = 12;  // linkerwielen achterruit wanneer 1;
+int motorDirectionRight = 13; // linkerwielen achterruit wanneer 1;'
+
+// variabelen om makkelijk te tunen
+int delayTime = 100;                   // bepaald hoelang het karretje die functie doet
+int linkerwielenBijsturenLinks = 2;   // bepaald hoe hard de linkerwielen draaien bij het bijsturen naar links
+int rechterwielenBijsturenLinks = 5;  // bepaald hoe hard de rechterwielen draaien bij het bijsturen naar links
+int linkerwielenBijsturenRechts = 5;  // bepaald hoe hard de linkerwielen draaien bij het bijsturen naar rechts
+int rechterwielenBijsturenRechts = 2; // bepaald hoe hard de rechterwielen draaine bij een slappe bocht naar rechts
+
+int leftWheelsRightSharpTurn = 5;
+int leftWheelsLeftSharpTurn = 5;
+int RightWheelsRightSharpTurn = 5;
+int RightWheelsLeftSharpTurn = 5;
+
+int straightLineSpeed = 5; // bepaald hoe hard het karretje in een recht lijn gaat
+int Sensors[5] = {IrSensor1, IrSensor2, IrSensor3, IrSensor4, IrSensor5}; // array met de info van alle sensorwaardes
+bool Arrived = 0;
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(IrSensor1, INPUT);
+  pinMode(IrSensor2, INPUT);
+  pinMode(IrSensor3, INPUT);
+  pinMode(IrSensor4, INPUT);
+  pinMode(IrSensor5, INPUT);
+  pinMode(motorsLeft, OUTPUT);
+  pinMode(motorsRight, OUTPUT);
+  pinMode(motorDirectionLeft, OUTPUT);
+  pinMode(motorDirectionRight, OUTPUT);
+  Serial.println("Running");
+}
+double sensorStatus[5];
+void Forward() //recht vooruit
+{
+  digitalWrite(motorDirectionLeft, HIGH);
+  digitalWrite(motorDirectionRight, LOW);
+  digitalWrite(motorsLeft, straightLineSpeed);
+  digitalWrite(motorsRight, straightLineSpeed);
+  Serial.println("Forward");
+}
+void bijsturenLinks() //kleine bocht naar links
+{
+  digitalWrite(motorDirectionLeft, LOW);
+  digitalWrite(motorDirectionRight, LOW);
+  analogWrite(motorsLeft, linkerwielenBijsturenLinks);
+  analogWrite(motorsRight, rechterwielenBijsturenLinks);
+  Serial.println("gentle left");
+  delay(delayTime);
+}
+
+void bijsturenRechts() //kleine bocht naar rechts
+{
+  pinMode(motorDirectionLeft, HIGH);
+  pinMode(motorDirectionRight, HIGH);
+  analogWrite(motorsLeft, linkerwielenBijsturenRechts);
+  analogWrite(motorsRight, rechterwielenBijsturenRechts);
+  Serial.println("gentle right");
+  delay(delayTime);
+}
+
+int Sensorchecking() {
+ int x = 0;
+  while (x <= 4)
+  {
+    if ((analogRead(Sensors[x])) > 300)
+    { // kijken of de sensorwaarde van sensor x donker genoeg is
+
+      sensorStatus[x] = 1; // status wordt 1
+      Serial.print(x);     // printen dat sensor 'x' een waarde van 1 heeft
+      Serial.println("= 1");
+      x++;
+    }
+    else
+    {
+      sensorStatus[x] = 0; // status wordt 0
+      Serial.print(x);     // printen dat sensor 'x' een waarde van 0 heeft
+      Serial.println("= 0");
+      x++;
+    }
+  }
+return sensorStatus[0];
+return sensorStatus[1];
+return sensorStatus[2];
+return sensorStatus[3];
+return sensorStatus[4];
+  }
+  void loop() {
+    Sensorchecking();
+  while ((Arrived)==0) {
+   analogWrite(motorsLeft, 0);
+  analogWrite(motorsRight, 0);
+  if ((sensorStatus[0] == 0) && (sensorStatus[2] == 1) && (sensorStatus[4] == 0) )
+  {
+    Forward();
+    Sensorchecking();
+  }
+  if ((sensorStatus[1] == 1) || ((sensorStatus[1] == 1) && (sensorStatus[0] == 1)) || ((sensorStatus[1] == 1) && (sensorStatus[2] == 1))){
+  bijsturenLinks();
+  delay(1000);
+  Sensorchecking();
+  }
+  if ((sensorStatus[3] == 1) || ((sensorStatus[3] == 1) && (sensorStatus[4] == 1)) || ((sensorStatus[2] == 1) && (sensorStatus[3] == 1))) {
+  }
+  }
+  }
+  
